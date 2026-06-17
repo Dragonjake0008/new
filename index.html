@@ -1,14 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intake Form</title>
-    <link rel="stylesheet" href="style.css">
+  <title>Stopwatch Match Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #111;
+      color: #fff;
+      padding-top: 40px;
+    }
+
+    #target {
+      font-size: 40px;
+      margin-bottom: 20px;
+      color: #00eaff;
+    }
+
+    #display {
+      font-size: 60px;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 20px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+    }
+
+    #startBtn { background: #28a745; color: white; }
+    #stopBtn { background: #dc3545; color: white; }
+    #newBtn { background: #007bff; color: white; }
+
+    #result {
+      margin-top: 20px;
+      font-size: 28px;
+      color: #ffd700;
+    }
+  </style>
 </head>
 <body>
-    
-<h1>Hello world</h1>
-    <script src="script.js"></script>
+
+  <h1>Stopwatch Match Game</h1>
+
+  <div id="target">Target: --:--:---</div>
+
+  <div id="display">00:00:000</div>
+
+  <button id="startBtn">Start</button>
+  <button id="stopBtn">Stop</button>
+  <button id="newBtn">New Target</button>
+
+  <div id="result"></div>
+
+<script>
+  let startTime = 0;
+  let interval;
+  let running = false;
+
+  let targetMin, targetSec, targetMs;
+
+  function generateTarget() {
+    targetMin = Math.floor(Math.random() * 2);      // 0–1 minutes
+    targetSec = Math.floor(Math.random() * 60);     // 0–59 seconds
+    targetMs = Math.floor(Math.random() * 1000);    // 0–999 ms
+
+    document.getElementById("target").innerText =
+      `Target: ${String(targetMin).padStart(2,'0')}:${String(targetSec).padStart(2,'0')}:${String(targetMs).padStart(3,'0')}`;
+  }
+
+  function updateDisplay() {
+    const now = Date.now();
+    const elapsed = now - startTime;
+
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    const milliseconds = elapsed % 1000;
+
+    document.getElementById("display").innerText =
+      `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}:${String(milliseconds).padStart(3,'0')}`;
+  }
+
+  document.getElementById("startBtn").onclick = function () {
+    if (!running) {
+      running = true;
+      startTime = Date.now();
+      interval = setInterval(updateDisplay, 10);
+    }
+  };
+
+  document.getElementById("stopBtn").onclick = function () {
+    if (running) {
+      running = false;
+      clearInterval(interval);
+
+      const finalTime = document.getElementById("display").innerText;
+      const [m, s, ms] = finalTime.split(":").map(Number);
+
+      const diff =
+        Math.abs(m - targetMin) * 60000 +
+        Math.abs(s - targetSec) * 1000 +
+        Math.abs(ms - targetMs);
+
+      document.getElementById("result").innerText =
+        `You were off by ${diff} ms`;
+    }
+  };
+
+  document.getElementById("newBtn").onclick = function () {
+    generateTarget();
+    document.getElementById("display").innerText = "00:00:000";
+    document.getElementById("result").innerText = "";
+    running = false;
+    clearInterval(interval);
+  };
+
+  generateTarget();
+</script>
+
 </body>
 </html>
